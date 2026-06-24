@@ -8,6 +8,48 @@ Some more information about installation, usage, GUI and CLI version and FAQ can
 
 [Blog](https://packeth.wordpress.com) with some use cases.
 
+## neoPackETH — modern Electron GUI
+
+**neoPackETH** is a fork of packETH that adds a modern, cross-platform
+desktop interface built with [Electron](https://www.electronjs.org/).
+It reimagines the classic four-window workflow with a clean,
+GitKraken-style UI (custom title bar, collapsible sidebar, GitHub-dark
+theme) while keeping the original GTK and CLI tools intact.
+
+The Electron app lives in the [`electron/`](electron/) directory and is
+self-contained — it does not require the GTK build to run.
+
+### Views
+
+- **Builder** — construct a packet layer by layer (Ethernet, ARP, IPv4,
+  IPv6, UDP, TCP, ICMP, ICMPv6, IGMP) with a live Wireshark-style
+  hex-dump preview and a per-layer size breakdown
+- **Gen-b** — burst generator: send the current packet by count,
+  continuously, or for a fixed duration, with live send statistics
+- **Gen-s** — sequence generator for up to 10 stored packets
+- **Pcap** — open a capture file and inspect packets in a sortable,
+  commit-table-style list, then load one back into the Builder
+
+### Running the Electron GUI
+
+```sh
+git clone https://github.com/2winkle95code/neoPackETH.git
+
+cd neoPackETH/electron
+npm install
+npm start
+```
+
+Sending packets on the wire requires root privileges (raw sockets), so
+launch with `sudo npm start` when you need to actually transmit.
+
+### Building installers
+
+```sh
+cd electron
+npm run build        # AppImage + deb (Linux), per electron-builder
+```
+
 ## NEWS
 
 ### OCT&NOV 2023
