@@ -1,16 +1,13 @@
-Makefile*
-aclocal.m4
-autom4te.cache/
-compile
-config*
-depcomp
-install-sh
-missing
-packETH
-src/*.o
-src/.deps/*
-src/pixmaps.[ch]
-src/ui.[ch]
+# CLI build artifacts
 cli/*.o
-stamp-h1
-!configure.ac
+cli/packETHcli
+
+# Node / Electron
+node_modules/
+dist/
+build/
+*.log
+
+# Editor / OS
+.DS_Store
+*.swp
