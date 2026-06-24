@@ -1,0 +1,34 @@
+{
+  "name": "neopacketh",
+  "version": "1.0.0",
+  "description": "A modern Electron UI for packETH — the ethernet packet generator",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": [
+    "packeth",
+    "packet",
+    "ethernet",
+    "network",
+    "generator"
+  ],
+  "author": "2winkle",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.2winkle.neopacketh",
+    "productName": "neoPackETH",
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Network"
+    }
+  }
+}
