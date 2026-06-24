@@ -39,6 +39,30 @@
   --radius-lg: 8px;
 }
 
+/* While switching theme, freeze all transitions for one frame. Otherwise
+   Chrome can leave a var()-driven background/color stuck mid-animation. */
+html.theme-switching, html.theme-switching * { transition: none !important; }
+
+/* Light theme — GitHub-light palette. Applied when <html data-theme="light">. */
+html[data-theme="light"] {
+  --bg:        #ffffff;
+  --surface:   #f6f8fa;
+  --surface2:  #eaeef2;
+  --bg-hover:  #eef1f4;
+  --bg-active: #ddf4ff;
+  --border:    #d0d7de;
+  --border2:   #afb8c1;
+  --accent:    #0969da;
+  --accent2:   #0860ca;
+  --success:   #1a7f37;
+  --danger:    #cf222e;
+  --warn:      #9a6700;
+  --purple:    #8250df;
+  --text:      #1f2328;
+  --muted:     #6e7781;
+  --muted2:    #57606a;
+}
+
 html, body {
   height: 100%;
   font-family: var(--sans);
@@ -146,6 +170,11 @@ html, body {
 }
 .toolbar-iface:hover { border-color: var(--accent); }
 .toolbar-iface .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+.tool-icon { padding: 6px 8px; }
+/* Show the moon in dark mode (click -> go light), the sun in light mode */
+.theme-icon-light { display: none; }
+html[data-theme="light"] .theme-icon-dark { display: none; }
+html[data-theme="light"] .theme-icon-light { display: inline; }
 
 /* ─── SIDEBAR (GitKraken-style, collapsible sections) ────────────── */
 #sidebar {
@@ -727,6 +756,10 @@ textarea { resize: vertical; min-height: 72px; font-family: var(--mono); font-si
       <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="11" y1="11" x2="15" y2="15" stroke="currentColor" stroke-width="1.3"/></svg>
       <input type="text" id="pcap-search" placeholder="Filter packets…" oninput="filterPcap(this.value)">
     </div>
+    <button class="tool-btn tool-icon" id="btnTheme" onclick="toggleTheme()" title="Toggle light / dark theme">
+      <svg class="theme-icon-dark" width="16" height="16" viewBox="0 0 16 16"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3a5.5 5.5 0 1 0 6.5 6.5z" fill="currentColor"/></svg>
+      <svg class="theme-icon-light" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.4"/><g stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="8" y1="1" x2="8" y2="2.6"/><line x1="8" y1="13.4" x2="8" y2="15"/><line x1="1" y1="8" x2="2.6" y2="8"/><line x1="13.4" y1="8" x2="15" y2="8"/><line x1="3" y1="3" x2="4.1" y2="4.1"/><line x1="11.9" y1="11.9" x2="13" y2="13"/><line x1="13" y1="3" x2="11.9" y2="4.1"/><line x1="4.1" y1="11.9" x2="3" y2="13"/></g></svg>
+    </button>
     <div class="toolbar-iface" onclick="cycleInterface()" title="Click to switch interface">
       <div class="dot"></div>
       <span id="iface-label">eth0</span>
@@ -1441,6 +1474,7 @@ let gensRunning = false;
 // INIT
 // ────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
   initGensSlots();
   renderSidebarInterfaces();
   buildPacket();
@@ -1536,6 +1570,35 @@ function cycleInterface() {
 function winMin()   { if (window.npe) window.npe.windowMinimize(); }
 function winMax()   { if (window.npe) window.npe.windowMaximize(); }
 function winClose() { if (window.npe) window.npe.windowClose(); }
+
+// ────────────────────────────────────────────────────────────────
+// THEME  (dark default, light optional — persisted in localStorage)
+// ────────────────────────────────────────────────────────────────
+function applyTheme(theme) {
+  const t = theme === 'light' ? 'light' : 'dark';
+  const root = document.documentElement;
+  // Freeze transitions across the variable swap, then re-enable next frame.
+  root.classList.add('theme-switching');
+  if (t === 'light') root.setAttribute('data-theme', 'light');
+  else root.removeAttribute('data-theme');
+  void root.offsetWidth; // force reflow with transitions disabled
+  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
+  try { localStorage.setItem('npe-theme', t); } catch (e) {}
+  const btn = document.getElementById('btnTheme');
+  if (btn) btn.title = t === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  applyTheme(cur === 'light' ? 'dark' : 'light');
+  setStatus('Theme: ' + (document.documentElement.getAttribute('data-theme') === 'light' ? 'Light' : 'Dark'));
+}
+
+function initTheme() {
+  let saved = 'dark';
+  try { saved = localStorage.getItem('npe-theme') || 'dark'; } catch (e) {}
+  applyTheme(saved);
+}
 
 // ────────────────────────────────────────────────────────────────
 // NAVIGATION
